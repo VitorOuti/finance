@@ -1,13 +1,16 @@
-import requests
 import unittest
+import sys
+import os
 
+# Adiciona o diretório 'src' ao caminho do Python
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 import cdi
 
 class TestCDIFunction(unittest.TestCase):
 
     def test_cdi(self):
-        dia_teste = "20/08/2021"  # Você pode ajustar para uma data que você sabe que tem dados
+        dia_teste = "20/08/2021"
         resultado = cdi.cdi(dia_teste)
         
         self.assertIsNotNone(resultado, f"Erro: Nenhum registro retornado para {dia_teste}")
