@@ -22,7 +22,7 @@ def cdi(data_inicial, data_final):
     response = requests.get(url)
     response.raise_for_status()
     data = response.json()
-
+    
     return data
 
 def taxa_cdi_mensal(cdi_dict):
