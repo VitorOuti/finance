@@ -17,35 +17,8 @@ def processar_cvm(informes):
                 columns='CNPJ_FUNDO', 
                 values=['VL_TOTAL', 'VL_QUOTA', 'VL_PATRIM_LIQ', 'CAPTC_DIA', 'RESG_DIA'])
    # Informes Normalizados
-   df_norm = df['VL_QUOTA'] / df['VL_QUOTA'].iloc[0]
-   
-   return df_norm
-   
-def get_best(frame, cadastro):
-    """
-    Retorna os fundos com os melhores retornos no período.
-    
-    Parameters:
-    - frame: DataFrame contendo os valores dos fundos.
-    - cadastro: DataFrame contendo informações adicionais dos fundos.
-    
-    Returns:
-    - final: DataFrame contendo os 5 fundos com os melhores retornos e suas informações correspondentes.
-    """
-    
-    # Filtra as colunas relevantes do DataFrame cadastro.
-    info = cadastro[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'DT_CANCEL', 'CLASSE', 'VL_PATRIM_LIQ', 'DT_INI_EXERC', 'DT_FIM_EXERC']]
-    
-    # Calcula o retorno percentual dos fundos.
-    df = pd.DataFrame()
-    df['retorno(%)'] = round((frame.iloc[-1].sort_values(ascending=False)[:5] - 1) * 100, 2)
-    
-    # Substitui valores infinitos por NaN e depois remove essas linhas.
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df.dropna(inplace=True)
-    
-    # Junta o DataFrame de retorno com o DataFrame de informações do cadastro.
-    final = pd.merge(df, info, how='left', on='CNPJ_FUNDO')
-    
-    return final
+   df = df['VL_QUOTA'] / df['VL_QUOTA'].iloc[0] -1
+   df.index.name = 'Data'
+
+   return df
    

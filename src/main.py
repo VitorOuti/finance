@@ -3,6 +3,7 @@ from time import sleep
 import pandas as pd
 import cdi
 import cvm
+import analize
 
 def get_dates(start_date, end_date):
     """
@@ -19,16 +20,9 @@ def get_dates(start_date, end_date):
     
     return months_years_list
 
-def retrieve_cdi_data(start_date, end_date):
-    """
-    Obtém os dados de CDI para um intervalo de datas.
-    """
-    try:
-        cdi_data = {item['data']: item['valor'] for item in cdi.cdi(start_date, end_date)}
-        return pd.DataFrame(list(cdi_data.items()), columns=['Data', 'CDI']), cdi_data
-    except Exception as e:
-        print('- A função "cdi" não funcionou conforme esperado.\n\n Erro:', e)
-        return None, {}
+def get_cdi_data(start_date, end_date):
+    cdi_data = {item['data']: item['valor'] for item in cdi.cdi(start_date, end_date)}
+    return pd.DataFrame(list(cdi_data.items()), columns=['Data', 'CDI'])
 
 def print_cdi_results(cdi_data):
     """
@@ -53,15 +47,12 @@ def get_informes_cvm(data_inicial, data_final):
     return pd.concat(informes)
 
 def main(data_inicial, data_final):
-    cdi_df, cdi_data = retrieve_cdi_data(data_inicial, data_final)
-    if cdi_df is not None and cdi_data:
-        #print_cdi_results(cdi_data)
-        print(cdi_df)
-    informes_df = get_informes_cvm(data_inicial, data_final)
-    cvm_df = cvm.processar_cvm(informes_df)
-    print(cvm_df)
-    # Adicione o código do gráfico aqui
+    cdi_df = get_cdi_data(data_inicial, data_final)
+    cvm_df = get_informes_cvm(data_inicial, data_final)
+    cvm_cad = cvm.cadastro_cvm()
+    analize.analize(cvm_df,cvm_cad,cdi_df)
+
 
 if __name__ == "__main__":
     print('Iniciando\n')
-    main("01/07/2022", "01/08/2023")
+    main("01/07/2022", "20/08/2023")
