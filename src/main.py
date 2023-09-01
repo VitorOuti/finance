@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from time import sleep
 import pandas as pd
+import threading
+
 import cdi
 import cvm
 import analize
@@ -50,9 +52,21 @@ def main(data_inicial, data_final):
     cdi_df = get_cdi_data(data_inicial, data_final)
     cvm_df = get_informes_cvm(data_inicial, data_final)
     cvm_cad = cvm.cadastro_cvm()
-    analize.analize(cvm_df,cvm_cad,cdi_df)
 
+    #Teste
+    #cvm_df = cvm_df[cvm_df['CNPJ_FUNDO'].isin(['36.896.886/0001-40','42.084.488/0001-22'])]
+
+    # A função rendimentos retorna o rendimento em % para COMPARAÇÃO COM CDI (Dias acima, etc)
+    desempenho_cdi = analize.rendimentos_cdi(cvm_df,cdi_df)
+    fundo_vs_cdi = analize.acima_do_cdi(desempenho_cdi)
+    
+    # Aqui, fica a função que calcula o RENDIMENTO TOTAL no periodo. Não confundir
+    rendimentos_periodo = analize.rendimentos_total(cvm_df)
+
+    print(fundo_vs_cdi)
+    print(rendimentos_periodo)
+    t = analize.consolidar(fundo_vs_cdi,rendimentos_periodo)
 
 if __name__ == "__main__":
     print('Iniciando\n')
-    main("01/07/2022", "20/08/2023")
+    main("01/05/2022", "30/08/2023")
