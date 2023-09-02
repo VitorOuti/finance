@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def rendimentos_cdi(inf, cdi):
+def analise_cdi(inf, cdi):
     print('- ajustando dados')
 
     # Renomear coluna e atualizar o DataFrame no lugar
@@ -29,17 +29,17 @@ def rendimentos_cdi(inf, cdi):
   
     return fundo
 
-def rendimentos_total(df):
+def analise_retorno(df):
     df = df.pivot(index='Data', columns='CNPJ_FUNDO', values=['VL_QUOTA'])
     df = df.iloc[:-1]
     cnpjs_cols = [col for col in df.columns]
 
     # Calculando a rentabilidade para cada CNPJ no período
-    rentabilidade_fundo = (df[cnpjs_cols].iloc[-1] - df[cnpjs_cols].iloc[0]) / df[cnpjs_cols].iloc[0]
+    retorno = (df[cnpjs_cols].iloc[-1] - df[cnpjs_cols].iloc[0]) / df[cnpjs_cols].iloc[0]
 
-    return rentabilidade_fundo
+    return retorno
     
-def acima_do_cdi(df):
+def acima_cdi(df):
     # Inicializando uma lista para armazenar os resultados
     resultado = []
     
@@ -55,17 +55,18 @@ def acima_do_cdi(df):
     
     return resultado_df
 
-def consolidar(df1,df2):
+def consolidar(df1,df2,cad):
     df2 = df2.reset_index()
     df2.columns = ['Categoria', 'CNPJ_FUNDO', 'Valor']
     
-    merged_df = pd.merge(df1, df2[['CNPJ_FUNDO', 'Valor']], on='CNPJ_FUNDO', how='left')
-    merged_df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    merged_df.dropna(inplace=True)
+    merged = pd.merge(df1, df2[['CNPJ_FUNDO', 'Valor']], on='CNPJ_FUNDO', how='left')
+    merged.replace([np.inf, -np.inf], np.nan, inplace=True)
+    merged.dropna(inplace=True)
+    merged_info = pd.merge(merged,cad,on='CNPJ_FUNDO',how='left')
+    merged_info.fillna('-', inplace=True)
 
-    print(merged_df.sort_values('Valor'))
-    plt.scatter(merged_df['Dias_Acima_do_CDI'], merged_df['Valor'])
-    plt.xlabel('Dias Acima do CDI')
-    plt.ylabel('Valor')
-    plt.title('Dias Acima do CDI vs Valor')
-    plt.show()
+    
+
+    print(merged_info.info())
+    return merged_info
+    

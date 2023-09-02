@@ -57,15 +57,12 @@ def main(data_inicial, data_final):
     #cvm_df = cvm_df[cvm_df['CNPJ_FUNDO'].isin(['36.896.886/0001-40','42.084.488/0001-22'])]
 
     # A função rendimentos retorna o rendimento em % para COMPARAÇÃO COM CDI (Dias acima, etc)
-    desempenho_cdi = analize.rendimentos_cdi(cvm_df,cdi_df)
-    fundo_vs_cdi = analize.acima_do_cdi(desempenho_cdi)
+    cdi_data = analize.analise_cdi(cvm_df,cdi_df)
+    fundo_vs_cdi = analize.acima_cdi(cdi_data)
     
     # Aqui, fica a função que calcula o RENDIMENTO TOTAL no periodo. Não confundir
-    rendimentos_periodo = analize.rendimentos_total(cvm_df)
-
-    print(fundo_vs_cdi)
-    print(rendimentos_periodo)
-    t = analize.consolidar(fundo_vs_cdi,rendimentos_periodo)
+    rendimentos_periodo = analize.analise_retorno(cvm_df)
+    consolidado = analize.consolidar(fundo_vs_cdi,rendimentos_periodo,cvm_cad)
 
 if __name__ == "__main__":
     print('Iniciando\n')
