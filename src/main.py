@@ -1,16 +1,22 @@
 from datetime import datetime, timedelta
 from time import sleep
 import pandas as pd
-import threading
+import warnings
+
+warnings.filterwarnings("ignore")
 
 import cdi
 import cvm
-import analize
+
+
+
+repo = r'C:\Users\vitor\Projects\finance\data'
 
 def get_dates(start_date, end_date):
     """
     Retorna uma lista de datas entre as datas de início e fim fornecidas.
     """
+    print(f'- Obtendo dados de {start_date} a {end_date}' )
     start = datetime.strptime(start_date, "%d/%m/%Y")
     end = datetime.strptime(end_date, "%d/%m/%Y")
     months_years_list = []
@@ -22,48 +28,30 @@ def get_dates(start_date, end_date):
     
     return months_years_list
 
-def get_cdi_data(start_date, end_date):
+def get_cdi(start_date, end_date):
     cdi_data = {item['data']: item['valor'] for item in cdi.cdi(start_date, end_date)}
-    return pd.DataFrame(list(cdi_data.items()), columns=['Data', 'CDI'])
+    data =  pd.DataFrame(list(cdi_data.items()), columns=['Data', 'CDI'])
+    print(f'- Download dados CDI finalizado. {len(data)} Registros')
+    return data
 
-def print_cdi_results(cdi_data):
-    """
-    Mostra os resultados do CDI mensal, anual e dos últimos 12 meses.
-    """
-    print("\n- Acumulado CDI Mensal:")
-    for mes_ano, taxa in cdi.taxa_cdi_mensal(cdi_data).items():
-        print(f"{mes_ano}: {taxa:.2%}")
-    print("\n- Acumulado CDI Anual:")
-    for ano, taxa in cdi.taxa_cdi_anual(cdi_data).items():
-        print(f"{ano}: {taxa:.2%}")
-    print(f"\n- Acumulado CDI 12 Meses: {cdi.taxa_cdi_12_meses(cdi_data):.2%}")
-
-def get_informes_cvm(data_inicial, data_final):
+def get_cvm(start_date, end_date):
     """
     Recupera informes da CVM para um intervalo de datas.
     """
-    cadastro = cvm.cadastro_cvm()
-    dates = get_dates(data_inicial, data_final)
+    dates = get_dates(start_date, end_date)
     informes = [cvm.informes_cvm(d.split('/')[1], d.split('/')[0]) for d in dates]
-    sleep(0.5)  # Pausa entre as requisições
-    return pd.concat(informes)
+    sleep(0.3)  # Pausa entre as requisições
+    data = pd.concat(informes)
+    print(f'- Download Informes CVM finalizado. {len(data)} Registros')
+    return data
 
-def main(data_inicial, data_final):
-    cdi_df = get_cdi_data(data_inicial, data_final)
-    cvm_df = get_informes_cvm(data_inicial, data_final)
-    cvm_cad = cvm.cadastro_cvm()
+def main(start, end):
+   cvm_data = cvm.process_cvm(get_cvm(start, end))
+   cdi_data = get_cdi(start,end)
+   register_data = cvm.cadastro_cvm()
 
-    #Teste
-    #cvm_df = cvm_df[cvm_df['CNPJ_FUNDO'].isin(['36.896.886/0001-40','42.084.488/0001-22'])]
-
-    # A função rendimentos retorna o rendimento em % para COMPARAÇÃO COM CDI (Dias acima, etc)
-    cdi_data = analize.analise_cdi(cvm_df,cdi_df)
-    fundo_vs_cdi = analize.acima_cdi(cdi_data)
-    
-    # Aqui, fica a função que calcula o RENDIMENTO TOTAL no periodo. Não confundir
-    rendimentos_periodo = analize.analise_retorno(cvm_df)
-    consolidado = analize.consolidar(fundo_vs_cdi,rendimentos_periodo,cvm_cad)
 
 if __name__ == "__main__":
     print('Iniciando\n')
-    main("01/05/2022", "30/08/2023")
+    main("05/09/2022", "05/09/2023")
+    print(' Finalizado ')
