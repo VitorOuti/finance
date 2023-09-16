@@ -81,3 +81,7 @@ def taxa_cdi_12_meses(cdi_dict):
 
     taxa_acumulada = principal - 1.0
     return taxa_acumulada
+
+def process(df):
+    df['cdi_acumulado'] = round(df['CDI'].astype(float).cumsum(),2)
+    return df

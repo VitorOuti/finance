@@ -7,6 +7,7 @@ warnings.filterwarnings("ignore")
 
 import cdi
 import cvm
+import process
 
 
 
@@ -46,12 +47,26 @@ def get_cvm(start_date, end_date):
     return data
 
 def main(start, end):
+   
+   # Obtendo, processando e salvando dados:
+   
+   # CVM
    cvm_data = cvm.process_cvm(get_cvm(start, end))
-   cdi_data = get_cdi(start,end)
+   cvm_data.to_csv(f'{repo}\cvm.csv',sep='\t')
+   
+   # CDI
+   cdi_data = cdi.process(get_cdi(start,end))
+   cdi_data.to_csv(f'{repo}\cdi.csv',sep='\t')
+  
+   # Cadastro CVM
    register_data = cvm.cadastro_cvm()
+   register_data.to_csv(f'{repo}\cad.csv', sep='\t')
+
+   # Teste
+   process.associate(cdi_data, cvm_data, register_data)
 
 
 if __name__ == "__main__":
     print('Iniciando\n')
-    main("05/09/2022", "05/09/2023")
+    main("01/06/2022", "05/09/2023")
     print(' Finalizado ')
